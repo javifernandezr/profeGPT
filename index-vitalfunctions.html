@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science - Vital Functions | 3 Quizzes</title>
+<style>
+  :root{
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --primary:#3157d5;
+    --primary-dark:#2443ad;
+    --border:#d9deea;
+    --correct:#15803d;
+    --correct-bg:#ecfdf3;
+    --incorrect:#b91c1c;
+    --incorrect-bg:#fef2f2;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+
+  header{
+    background:linear-gradient(135deg,#243b8f,#4668df);
+    color:white;
+    padding:34px 18px 28px;
+    text-align:center;
+  }
+
+  header h1{
+    margin:0 0 8px;
+    font-size:clamp(1.8rem,4vw,2.7rem);
+  }
+
+  header p{margin:0;opacity:.92}
+
+  .wrap{
+    max-width:900px;
+    margin:22px auto 60px;
+    padding:0 16px;
+  }
+
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:18px;
+  }
+
+  .step{
+    background:#e5e7eb;
+    color:#4b5563;
+    border-radius:12px;
+    text-align:center;
+    padding:10px 8px;
+    font-weight:700;
+  }
+
+  .step.active{
+    background:var(--primary);
+    color:white;
+  }
+
+  .step.done{
+    background:#dcfce7;
+    color:#166534;
+  }
+
+  .intro{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:18px;
+    box-shadow:0 5px 18px rgba(31,41,55,.05);
+  }
+
+  .page{display:none}
+  .page.active{display:block}
+
+  .page-title{
+    margin:8px 0 4px;
+    font-size:1.5rem;
+  }
+
+  .page-subtitle{
+    margin:0 0 18px;
+    color:var(--muted);
+  }
+
+  .question{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    margin:14px 0;
+    box-shadow:0 6px 18px rgba(31,41,55,.05);
+  }
+
+  .question h2{
+    margin:0 0 14px;
+    font-size:1.08rem;
+    line-height:1.4;
+  }
+
+  .option{
+    display:block;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 14px;
+    margin:9px 0;
+    cursor:pointer;
+    transition:.15s ease;
+    background:white;
+  }
+
+  .option:hover{
+    border-color:#9fb0f2;
+    background:#f8faff;
+  }
+
+  .option input{margin-right:10px}
+
+  .option.correct{
+    border-color:var(--correct);
+    background:var(--correct-bg);
+    color:#14532d;
+    font-weight:700;
+  }
+
+  .option.incorrect{
+    border-color:var(--incorrect);
+    background:var(--incorrect-bg);
+    color:#7f1d1d;
+    font-weight:700;
+  }
+
+  .question.locked .option{
+    cursor:default;
+  }
+
+  .feedback{
+    margin-top:10px;
+    font-size:.95rem;
+    font-weight:700;
+  }
+
+  .feedback.ok{color:var(--correct)}
+  .feedback.bad{color:var(--incorrect)}
+
+  .progress-box{
+    margin:14px 0 18px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:#eef2ff;
+    border:1px solid #c7d2fe;
+    color:#312e81;
+    font-weight:700;
+  }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:24px;
+  }
+
+  button{
+    border:0;
+    border-radius:11px;
+    padding:12px 18px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .primary{
+    background:var(--primary);
+    color:white;
+  }
+
+  .primary:hover{background:var(--primary-dark)}
+
+  .primary:disabled{
+    background:#aeb8d8;
+    cursor:not-allowed;
+  }
+
+  .secondary{
+    background:#e5e7eb;
+    color:#111827;
+  }
+
+  .final-card{
+    display:none;
+    background:white;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    margin-top:20px;
+    box-shadow:0 8px 24px rgba(31,41,55,.06);
+  }
+
+  .final-card h2{margin-top:0}
+
+  .score-big{
+    font-size:2.3rem;
+    font-weight:800;
+    color:var(--primary);
+    margin:8px 0;
+  }
+
+  @media (max-width:640px){
+    .steps{grid-template-columns:1fr}
+    .question{padding:16px}
+  }
+
+  .option:has(input:checked){border-color:var(--primary);background:#eef2ff}
+  .option.correct:has(input:checked){border-color:var(--correct);background:var(--correct-bg)}
+  .option.incorrect:has(input:checked){border-color:var(--incorrect);background:var(--incorrect-bg)}
+  .option:focus-within, button:focus-visible, a:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}
+  .question h3{margin:0 0 14px;font-size:1.08rem;line-height:1.4}
+  .question{min-width:0}
+  .feedback:empty{display:none}
+  .feedback{line-height:1.6}
+  .final-card[hidden]{display:none}
+  .final-card:not([hidden]){display:block}
+  .step{width:100%;font-size:1rem}
+  .step:disabled{cursor:default}
+  .intro a{color:var(--primary)}
+  [hidden]{display:none!important}
+</style>
+</head>
+
+<body>
+<header>
+  <h1 lang="en">Science · Vital Functions</h1>
+  <p>3 quizzes · 30 preguntas · 6.º de Primaria</p>
+</header>
+<main class="wrap">
+  <nav class="steps" aria-label="Bloques del cuestionario">
+    <button type="button" class="step active" id="step1" aria-current="step">Quiz 1 · Senses</button>
+    <button type="button" class="step" id="step2">Quiz 2 · Nervous system</button>
+    <button type="button" class="step" id="step3">Quiz 3 · Stimuli &amp; responses</button>
+  </nav>
+  <div class="intro">
+    <p>Elige una respuesta por pregunta. Puedes cambiarla y moverte entre los tres bloques.</p>
+    <p>Las soluciones y la nota aparecerán <strong>solo cuando pulses «Corregir» al final</strong>, después de responder las 30 preguntas.</p>
+    <a href="index.html">Volver al quiz de Historia</a>
+  </div>
+  <section class="page active" id="page1" aria-labelledby="title1">
+    <h2 class="page-title" id="title1" tabindex="-1" lang="en">Quiz 1 · The five senses</h2>
+    <p class="page-subtitle" lang="en">Sight, taste, hearing, touch and smell.</p>
+    <div class="progress-box" id="progress1" role="status"></div>
+    <div id="quiz1" lang="en"></div>
+    <div class="actions"><button type="button" class="primary" id="next1">Ir al Quiz 2</button></div>
+  </section>
+  <section class="page" id="page2" aria-labelledby="title2">
+    <h2 class="page-title" id="title2" tabindex="-1" lang="en">Quiz 2 · The nervous system</h2>
+    <p class="page-subtitle" lang="en">The central and peripheral nervous systems. The brain and spinal cord.</p>
+    <div class="progress-box" id="progress2" role="status"></div>
+    <div id="quiz2" lang="en"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="back2">Volver al Quiz 1</button>
+      <button type="button" class="primary" id="next2">Ir al Quiz 3</button>
+    </div>
+  </section>
+  <section class="page" id="page3" aria-labelledby="title3">
+    <h2 class="page-title" id="title3" tabindex="-1" lang="en">Quiz 3 · From stimulus to response</h2>
+    <p class="page-subtitle" lang="en">Internal and external stimuli. Muscular and glandular responses.</p>
+    <div class="progress-box" id="progress3" role="status"></div>
+    <div id="quiz3" lang="en"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="back3">Volver al Quiz 2</button>
+      <button type="button" class="primary" id="grade" disabled aria-describedby="completion">Corregir las 30 preguntas</button>
+    </div>
+  </section>
+  <p class="progress-box" id="completion" role="status"></p>
+  <section class="final-card" id="finalCard" hidden aria-labelledby="resultTitle">
+    <h2 id="resultTitle" tabindex="-1">Resultado final</h2>
+    <div class="score-big" id="totalScore"></div>
+    <p id="finalMessage"></p>
+    <p id="sectionScores"></p>
+    <p>Usa los botones de arriba para revisar la corrección de cada bloque.</p>
+    <button type="button" class="secondary" id="restart">Reiniciar todo</button>
+  </section>
+  <noscript><div class="intro">Activa JavaScript en tu navegador para realizar el quiz.</div></noscript>
+</main>
+<script>
+'use strict';
+// Based on the seven Science notebook photos supplied for this quiz.
+// Answer keys are used only by the final correction, never while answering.
+const quizzes = [
+  [
+    {q:"Which sense helps us detect colours, shapes and movement?",a:["Taste","Sight","Smell","Touch"],c:1,e:"Sight also helps us judge distance. Our eyes detect light."},
+    {q:"Which part of the eye focuses light on the retina?",a:["The optic nerve","The iris","The lens","The pupil"],c:2,e:"The lens focuses light on the retina. The iris controls how much light enters through the pupil."},
+    {q:"What does the retina do?",a:["It changes light into nerve signals","It produces saliva","It carries sound waves","It moves the eyelids"],c:0,e:"The retina changes light into nerve signals. The optic nerve carries information to the brain."},
+    {q:"Which structures on the tongue detect chemicals in food?",a:["Small bones","Taste buds","The retina","The eardrum"],c:1,e:"Food mixes with saliva. Taste buds detect chemicals and taste nerves send signals to the brain."},
+    {q:"Which list contains the five basic tastes?",a:["Hot, cold, rough, smooth and soft","Red, blue, green, yellow and pink","Loud, quiet, high, low and deep","Sweet, salty, sour, bitter and umami"],c:3,e:"The five basic tastes are sweet, salty, sour, bitter and umami."},
+    {q:"What happens to the eardrum when sound waves reach it?",a:["It detects flavours","It focuses light","It vibrates","It makes sweat"],c:2,e:"Sound waves make the eardrum vibrate. The small bones amplify these vibrations."},
+    {q:"Which part of the ear changes vibrations into nerve signals?",a:["The cochlea","The pupil","The cornea","The tongue"],c:0,e:"The cochlea changes vibrations into nerve signals. The auditory nerve carries them to the brain."},
+    {q:"What can we detect through touch?",a:["Only colours and shapes","Only flavours","Only sounds","Pressure, temperature, pain and texture"],c:3,e:"Receptors in the skin detect touch information. Nerves carry signals to the central nervous system."},
+    {q:"Which layer of the skin contains many touch receptors?",a:["The iris","The dermis","The eardrum","The retina"],c:1,e:"The dermis contains receptors. The epidermis protects the outside and fatty tissue helps keep us warm."},
+    {q:"Which nerve carries smell information from the nose to the brain?",a:["The optic nerve","The auditory nerve","The olfactory nerve","A motor nerve in the leg"],c:2,e:"Olfactory cells in the nose detect airborne substances. The olfactory nerve carries smell signals to the brain."}
+  ],
+  [
+    {q:"What is the main job of the nervous system?",a:["To receive information, process it and coordinate responses","To digest food only","To make bones longer only","To carry oxygen in the blood"],c:0,e:"The nervous system helps the body detect changes and respond to them."},
+    {q:"Which two parts form the central nervous system (CNS)?",a:["The eyes and ears","The muscles and glands","The skin and tongue","The brain and spinal cord"],c:3,e:"The brain and spinal cord form the central nervous system."},
+    {q:"What mainly forms the peripheral nervous system (PNS)?",a:["The brain","The spinal cord","Nerves outside the brain and spinal cord","The bones of the skull"],c:2,e:"The peripheral nerves connect the central nervous system with the rest of the body."},
+    {q:"What does the peripheral nervous system connect?",a:["Food with the stomach only","The CNS with organs, limbs and skin","The eyes with light only","The skull with the ribs"],c:1,e:"It carries sensory and motor information between the CNS and the rest of the body."},
+    {q:"Which nerves carry information from receptors towards the CNS?",a:["Sensory nerves","Motor nerves","Only nerves in muscles","Only nerves in glands"],c:0,e:"Sensory nerves carry information from receptors to the brain or spinal cord."},
+    {q:"Which nerves carry orders from the CNS to muscles and glands?",a:["Only the optic nerves","Only the olfactory nerves","Sensory nerves","Motor nerves"],c:3,e:"Motor nerves carry orders to effectors, such as muscles and glands."},
+    {q:"Which part of the brain is especially involved in thoughts, memory, language and emotions?",a:["The cerebellum","The brainstem","The cerebrum","The spinal cord"],c:2,e:"The cerebrum is involved in thinking, memory, language, emotions and interpreting information from the senses."},
+    {q:"Which part of the brain helps with balance and coordinated movements?",a:["The cerebrum","The cerebellum","The optic nerve","The skin"],c:1,e:"The cerebellum lies below the back of the cerebrum. It helps us balance and make precise movements."},
+    {q:"Which part connects the brain to the spinal cord and helps control automatic functions?",a:["The brainstem","The retina","The tongue","The cerebellum"],c:0,e:"The brainstem connects the brain with the spinal cord and helps control functions such as breathing and heartbeat."},
+    {q:"Which CNS structure can coordinate a quick withdrawal reflex when you touch something hot?",a:["The nose","The taste buds","The auditory nerve","The spinal cord"],c:3,e:"The spinal cord can coordinate a quick reflex before you consciously feel the pain. Information also reaches the brain."}
+  ],
+  [
+    {q:"What is a stimulus?",a:["A muscle in the arm","A change inside or outside the body that can be detected","A bone in the ear","A type of food only"],c:1,e:"A stimulus is a detectable change. It can come from inside the body or from the environment."},
+    {q:"Which pair contains internal stimuli?",a:["A loud sound and bright light","A smell and a cold object","Hunger and thirst","A ball and a voice"],c:2,e:"Hunger and thirst come from inside the body, so they are internal stimuli."},
+    {q:"Which situation involves an external stimulus?",a:["Hearing your friend call your name","Feeling thirsty","Feeling hungry","Detecting a change inside your stomach"],c:0,e:"Your friend's voice comes from outside your body. Sound is an external stimulus."},
+    {q:"What detects a stimulus first?",a:["A motor order","A response","An effector muscle","A receptor"],c:3,e:"Receptors detect stimuli and start sensory signals that travel towards the CNS."},
+    {q:"Which is the correct pathway from a stimulus to a response?",a:["Stimulus → muscles → receptors → brain → response","Stimulus → receptors → sensory nerves → brain or spinal cord → motor nerves → effectors → response","Brain → response → stimulus → receptors → nerves","Stimulus → motor nerves → glands → sensory nerves → receptors"],c:1,e:"Receptors detect the stimulus. Sensory nerves carry the signal to the CNS, which sends orders through motor nerves to effectors."},
+    {q:"What are the two main types of effectors in these notes?",a:["Eyes and ears","Brain and spinal cord","Muscles and glands","Receptors and sensory nerves"],c:2,e:"Effectors carry out a response. Muscles produce movement and glands release substances."},
+    {q:"You raise your arms to catch a ball. What type of response is this?",a:["Muscular","Glandular","An internal stimulus","A smell stimulus"],c:0,e:"Raising your arms uses muscles, so it is a muscular response."},
+    {q:"You smell food and your salivary glands release saliva. What type of response is this?",a:["Muscular","An internal stimulus","A light stimulus","Glandular"],c:3,e:"Salivary glands release saliva. Releasing a substance is a glandular response."},
+    {q:"You touch a hot object and pull your hand away. Which description is correct?",a:["Internal stimulus and glandular response","External stimulus and muscular response","Internal stimulus and muscular response","External stimulus and glandular response"],c:1,e:"Heat from the object is an external stimulus. Moving your hand away is a muscular response."},
+    {q:"You hear your name and turn your head. Which description is correct?",a:["Muscles detect the voice and the nose gives the order","Glands detect the voice and bones process it","Hearing receptors detect the sound, the brain processes it and muscles turn your head","The response happens before any stimulus is detected"],c:2,e:"Hearing receptors detect sound. Sensory signals reach the brain, and motor signals reach the muscles that turn your head."}
+  ]
+];
+
+const state = quizzes.map(quiz => ({answers:Array(quiz.length).fill(null),score:0}));
+let graded = false;
+const totalQuestions = quizzes.reduce((sum, quiz) => sum + quiz.length, 0);
+
+function renderQuiz(index){
+  const container = document.getElementById(`quiz${index+1}`);
+  container.replaceChildren();
+  quizzes[index].forEach((item, qi) => {
+    const box = document.createElement('div');
+    box.className = 'question';
+    box.id = `qbox-${index}-${qi}`;
+    box.setAttribute('role','group');
+    box.setAttribute('aria-labelledby',`question-${index}-${qi}`);
+    const title = document.createElement('h3');
+    title.id = `question-${index}-${qi}`;
+    title.textContent = `${qi+1}. ${item.q}`;
+    box.appendChild(title);
+    item.a.forEach((option, oi) => {
+      const label = document.createElement('label');
+      label.className = 'option';
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = `q-${index}-${qi}`;
+      input.value = oi;
+      input.addEventListener('change', () => answerQuestion(index, qi, oi));
+      label.append(input, document.createTextNode(` ${String.fromCharCode(65+oi)}) ${option}`));
+      box.appendChild(label);
+    });
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback';
+    feedback.id = `feedback-${index}-${qi}`;
+    box.appendChild(feedback);
+    container.appendChild(box);
+  });
+}
+
+function answerQuestion(quizIndex, questionIndex, selectedIndex){
+  if(graded) return;
+  state[quizIndex].answers[questionIndex] = selectedIndex;
+  updateProgress();
+}
+
+function answeredTotal(){
+  return state.reduce((sum, quiz) => sum + quiz.answers.filter(answer => answer !== null).length, 0);
+}
+
+function updateProgress(){
+  state.forEach((quizState, index) => {
+    const answered = quizState.answers.filter(answer => answer !== null).length;
+    document.getElementById(`progress${index+1}`).textContent = graded
+      ? `Resultado: ${quizState.score} / ${quizzes[index].length} aciertos`
+      : `Respondidas: ${answered} / ${quizzes[index].length}`;
+  });
+  const answered = answeredTotal();
+  document.getElementById('completion').textContent = graded
+    ? 'Cuestionario corregido. Ya puedes revisar las soluciones de los tres bloques.'
+    : `Total respondidas: ${answered} / ${totalQuestions}. ${answered === totalQuestions ? 'Ya puedes corregir en el Quiz 3.' : 'Responde todas las preguntas para corregir al final.'}`;
+  document.getElementById('grade').disabled = graded || answered !== totalQuestions;
+}
+
+function goToPage(index){
+  document.querySelectorAll('.page').forEach((page, i) => page.classList.toggle('active', i === index));
+  for(let i=0;i<quizzes.length;i++){
+    const step = document.getElementById(`step${i+1}`);
+    step.className = 'step';
+    if(graded) step.classList.add('done');
+    if(i === index){step.classList.add('active');step.setAttribute('aria-current','step');}
+    else step.removeAttribute('aria-current');
+  }
+  document.getElementById(`title${index+1}`).focus({preventScroll:true});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function gradeAll(){
+  if(graded || answeredTotal() !== totalQuestions) return;
+  graded = true;
+  quizzes.forEach((quiz, index) => {
+    state[index].score = 0;
+    quiz.forEach((item, qi) => {
+      const selected = state[index].answers[qi];
+      const correct = selected === item.c;
+      if(correct) state[index].score++;
+      const box = document.getElementById(`qbox-${index}-${qi}`);
+      box.classList.add('locked');
+      box.querySelectorAll('.option').forEach((label, oi) => {
+        label.querySelector('input').disabled = true;
+        if(oi === item.c) label.classList.add('correct');
+        if(oi === selected && !correct) label.classList.add('incorrect');
+      });
+      const feedback = document.getElementById(`feedback-${index}-${qi}`);
+      feedback.className = `feedback ${correct ? 'ok' : 'bad'}`;
+      feedback.textContent = `${correct ? 'Correct.' : 'Incorrect.'} Answer: ${String.fromCharCode(65+item.c)}) ${item.a[item.c]}. ${item.e}`;
+    });
+  });
+  const total = state.reduce((sum, quiz) => sum + quiz.score, 0);
+  document.getElementById('totalScore').textContent = `${total} / ${totalQuestions} · Nota: ${(total / totalQuestions * 10).toFixed(1).replace('.',',')} / 10`;
+  document.getElementById('finalMessage').textContent = total >= 27 ? '¡Excelente resultado!' : total >= 21 ? 'Muy buen resultado. Repasa las preguntas que has fallado.' : total >= 15 ? 'Buen intento. Revisa las explicaciones y vuelve a practicar.' : 'Sigue practicando. Revisa las explicaciones antes de repetir el quiz.';
+  document.getElementById('sectionScores').textContent = state.map((quiz,i) => `Quiz ${i+1}: ${quiz.score} / ${quizzes[i].length}`).join(' · ');
+  document.getElementById('finalCard').hidden = false;
+  document.getElementById('grade').hidden = true;
+  for(let i=0;i<quizzes.length;i++) document.getElementById(`step${i+1}`).classList.add('done');
+  updateProgress();
+  document.getElementById('resultTitle').focus();
+}
+
+function restartAll(){
+  graded = false;
+  state.forEach((quiz, index) => {quiz.answers.fill(null);quiz.score = 0;renderQuiz(index);});
+  document.getElementById('finalCard').hidden = true;
+  document.getElementById('totalScore').textContent = '';
+  document.getElementById('finalMessage').textContent = '';
+  document.getElementById('sectionScores').textContent = '';
+  document.getElementById('grade').hidden = false;
+  updateProgress();
+  goToPage(0);
+}
+
+for(let i=0;i<quizzes.length;i++){
+  renderQuiz(i);
+  document.getElementById(`step${i+1}`).addEventListener('click',() => goToPage(i));
+}
+document.getElementById('next1').addEventListener('click',() => goToPage(1));
+document.getElementById('next2').addEventListener('click',() => goToPage(2));
+document.getElementById('back2').addEventListener('click',() => goToPage(0));
+document.getElementById('back3').addEventListener('click',() => goToPage(1));
+document.getElementById('grade').addEventListener('click',gradeAll);
+document.getElementById('restart').addEventListener('click',restartAll);
+updateProgress();
+</script>
+</body>
+</html>
